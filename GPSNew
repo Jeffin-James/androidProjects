@@ -1,0 +1,54 @@
+public class MainActivity extends AppCompatActivity {
+    TextView textView;
+    Button getLoc;
+    public static final int REQUEST_LOCATION = 1;
+
+    public static FusedLocationProviderClient client;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        textView = findViewById(R.id.locationText);
+        getLoc = findViewById(R.id.getLoc);
+        client = LocationServices.getFusedLocationProviderClient(this);
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+
+        getLoc.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("MissingPermission")
+            @Override
+            public void onClick(View v) {
+                client.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if(task.isComplete()){
+                            Location lo = task.getResult();
+
+                            Toast.makeText(MainActivity.this, "loc"+ lo.getLatitude() , Toast.LENGTH_LONG)
+                                    .show();
+
+                        }
+                    }
+                });
+                
+            }
+        });
+    }
+
+    private void onGPS() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Enable GPS").setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+            }
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+}
