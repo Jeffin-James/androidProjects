@@ -1,0 +1,36 @@
+package com.example.mutlithreading;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+
+public class MainActivity extends AppCompatActivity {
+
+    ImageView imageView;
+    Button set;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        imageView =(ImageView) findViewById(R.id.imageView);
+        set = (Button) findViewById(R.id.setButton);
+        set.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageView.setImageResource(R.drawable.img1);
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageView.setImageResource(R.drawable.img2);
+                    }
+                }, 3000);
+
+            }
+        });
+    }
+}
