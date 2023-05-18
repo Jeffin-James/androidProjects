@@ -1,0 +1,122 @@
+package com.example.notimana;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.Person;
+import androidx.core.graphics.drawable.IconCompat;
+
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.widget.Toast;
+
+import com.example.notimana.databinding.ActivityMainBinding;
+
+import java.io.File;
+import java.util.Calendar;
+import java.util.Date;
+
+public class MainActivity extends AppCompatActivity {
+
+    private ActivityMainBinding binding;
+    private NotificationManager notificationManager;
+    private NotificationChannel notificationChannel;
+    private NotificationCompat.Builder builder;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationChannel = new NotificationChannel("1","Simple",NotificationManager.IMPORTANCE_DEFAULT);
+        notificationChannel.setDescription("Hello");
+        builder = new NotificationCompat.Builder(this,"1")
+                .setSmallIcon(R.mipmap.ic_launcher);
+        notificationManager.createNotificationChannel(notificationChannel);
+        binding.simple.setOnClickListener(v->{
+            simpleNotification();
+        });
+        binding.notiIcon.setOnClickListener(v->{
+            iconNoti();
+        });
+        binding.imgNoti.setOnClickListener(v->{
+            imageNoti();
+        });
+        binding.smantic.setOnClickListener(v->{
+            semantic();
+        });
+
+    }
+    public void simpleNotification(){
+        Toast.makeText(this, "Simple", Toast.LENGTH_SHORT).show();
+        Person p = new Person.Builder().setName("pan").setImportant(true).build();
+
+        new NotificationCompat.MessagingStyle(p)
+                .addMessage("Hello",new Date().getTime(),p)
+                .setBuilder(builder);
+
+        notificationManager.notify(1,builder.build());
+    }
+
+    public void iconNoti(){
+        Person num = new Person.Builder().setName("John").setImportant(true).setIcon(IconCompat.createWithResource(this,R.drawable.ic_launcher_background)).build();
+        new NotificationCompat.MessagingStyle(num)
+                .addMessage("Hello boy",new Date().getTime(),num)
+                .setBuilder(builder);
+        notificationManager.notify(1,builder.build());
+    }
+
+    public void imageNoti(){
+        Person num = new Person.Builder().setName("John").setImportant(true).build();
+        Uri uri = Uri.parse("android.resource://com.example.notimana/drawables/"+R.drawable.img);
+
+        NotificationCompat.MessagingStyle.Message message= new NotificationCompat.MessagingStyle.Message(
+                "Hello from", Calendar.getInstance().getTimeInMillis(),num
+        ).setData("image/*",uri);
+
+        new NotificationCompat.MessagingStyle(num)
+                .addMessage(message)
+                .setBuilder(builder);
+
+        notificationManager.notify(1,builder.build());
+    }
+
+    public void semantic(){
+        Intent i = new Intent(this, MainActivity.class);
+        i.putExtra("hi","Read");
+        PendingIntent pi = PendingIntent.getActivity(this,0,i,PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Action replayAction = new NotificationCompat.Action.Builder(R.drawable.ic_launcher_background, "MARK_READ", pi)
+                .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ)
+                .build();
+
+        NotificationCompat.Builder spb = builder;
+        spb.addAction(replayAction);
+
+        Person num = new Person.Builder().setName("John").setImportant(true).setIcon(IconCompat.createWithResource(this,R.drawable.ic_launcher_background)).build();
+        Person l = new Person.Builder().setName("John").setImportant(true).setIcon(IconCompat.createWithResource(this,R.drawable.ic_launcher_background)).build();
+        Person bot = new Person.Builder().setName("BOT").setBot(true)
+        .setImportant(true).setIcon(IconCompat.createWithResource(this,R.drawable.ic_launcher_background)).build();
+
+
+        new NotificationCompat.MessagingStyle(bot)
+                .addMessage("", Calendar.getInstance().getTimeInMillis(),bot)
+                .addMessage("Helo from num",  Calendar.getInstance().getTimeInMillis(),num)
+                .addMessage("Hello from l",  Calendar.getInstance().getTimeInMillis(),l)
+                .setGroupConversation(true)
+                .setConversationTitle("Fuck")
+                .setBuilder(spb);
+
+        notificationManager.notify(1, spb.build());
+
+
+
+    }
+
+
+}
