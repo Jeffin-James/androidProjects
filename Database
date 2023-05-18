@@ -1,0 +1,79 @@
+package com.example.database;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.util.Log;
+
+import com.example.database.databinding.ActivityMainBinding;
+
+public class MainActivity extends AppCompatActivity {
+
+    private ActivityMainBinding binding ;
+
+    private SQLiteDatabase db;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        db = openOrCreateDatabase("student_db", Context.MODE_PRIVATE, null);
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS STUDENTS(rollNo NUMBER, name TEXT)");
+
+        binding.insert.setOnClickListener(v -> {
+
+            insertData();
+
+        });
+
+        binding.delete.setOnClickListener(v->{
+            deleteValue();
+        });
+        binding.view.setOnClickListener(v->{
+            view();
+        });
+    }
+
+    private void insertData(){
+
+        int rollNo = Integer.parseInt(binding.etRollNo.getText().toString());
+
+        String name = binding.etName.getText().toString();
+
+        db.execSQL("INSERT INTO STUDENTS VALUES('" + rollNo+ "','"+ name + "');");
+
+
+    }
+
+    private void deleteValue(){
+
+        int rollNo = Integer.parseInt(binding.etRollNo.getText().toString());
+
+        Cursor c = db.rawQuery("SELECT * FROM STUDENTS WHERE rollNo=" + rollNo+";", null);
+
+        if(c.moveToNext()){
+            db.execSQL("DELETE FROM STUDENTS WHERE rollNo = "+rollNo +";");
+        }
+
+        c.close();
+
+    }
+
+    private void view(){
+        int rollNo = Integer.parseInt(binding.etRollNo.getText().toString());
+        Cursor c = db.rawQuery("SELECT * FROM STUDENTS WHERE rollNo = "+rollNo+";",null);
+        if(c.moveToNext()){
+            Log.d("Data", "view: "+c.getString(0)+c.getString(1));
+        }
+        c.close();
+
+    }
+
+
+}
